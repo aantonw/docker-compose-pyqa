@@ -44,7 +44,7 @@ if [ "${ISORT_VERSION:-}" = "" ]; then
     fi
 fi
 
-DOCKER_IMAGE_NAME=${DOCKER_REPO}:compose-${COMPOSE_VERSION}_black-${BLACK_VERSION}_isort-${ISORT_VERSION}
+DOCKER_IMAGE_TAG=compose-${COMPOSE_VERSION}_black-${BLACK_VERSION}_isort-${ISORT_VERSION}
 COMPOSE_BIN_URL=https://github.com/docker/compose/releases/download/${COMPOSE_VERSION}/docker-compose-linux-$(uname -m)
 
 # Fetch a temporary docker auth token if necessary (the automated workflow
@@ -56,24 +56,24 @@ if [ "${DOCKERHUB_TOKEN}" = "" ]; then
 fi
 
 # See if an image already exists. If so, we can exit early, no more work to do.
-DOCKER_IMAGE_DIGEST_CODE=$(curl -s -o /dev/null -w "%{http_code}" -H "Authorization: Bearer ${DOCKERHUB_TOKEN}" -H "Accept: application/vnd.docker.distribution.manifest.v2+json" "https://registry.hub.docker.com/v2/${DOCKER_REPO}/manifests/${BLACK_VERSION}")
+DOCKER_IMAGE_DIGEST_CODE=$(curl -s -o /dev/null -w "%{http_code}" -H "Authorization: Bearer ${DOCKERHUB_TOKEN}" -H "Accept: application/vnd.docker.distribution.manifest.v2+json" "https://registry.hub.docker.com/v2/${DOCKER_REPO}/manifests/${DOCKER_IMAGE_TAG}")
 if [ "${DOCKER_IMAGE_DIGEST_CODE}" = "200" ]; then
-    echo "Image ${DOCKER_IMAGE_NAME} already exists, skipping."
+    echo "Image ${DOCKER_REPO}:${DOCKER_IMAGE_TAG} already exists, skipping."
     exit 0
 fi
 
 # Otherwise, build and push a new image.
-echo "Building  ${DOCKER_IMAGE_NAME} ..."
+echo "Building  ${DOCKER_REPO}:${DOCKER_IMAGE_TAG} ..."
 docker build \
-    -t "${DOCKER_IMAGE_NAME}" \
+    -t "${DOCKER_REPO}:${DOCKER_IMAGE_TAG}" \
     -t "${DOCKER_REPO}:latest" \
     --build-arg COMPOSE_BIN_URL="${COMPOSE_BIN_URL}" \
     --build-arg BLACK_VERSION="${BLACK_VERSION}" \
     --build-arg ISORT_VERSION="${ISORT_VERSION}" \
     "."
 
-echo "Pushing version ${DOCKER_IMAGE_NAME} ..."
-docker push "${DOCKER_IMAGE_NAME}"
+echo "Pushing version ${DOCKER_REPO}:${DOCKER_IMAGE_TAG} ..."
+docker push "${DOCKER_REPO}:${DOCKER_IMAGE_TAG}"
 
-echo "Pushing version ${DOCKER_IMAGE_NAME} as ${DOCKER_REPO}:latest ..."
+echo "Pushing version ${DOCKER_REPO}:${DOCKER_IMAGE_TAG} as ${DOCKER_REPO}:latest ..."
 docker push "${DOCKER_REPO}:latest"
