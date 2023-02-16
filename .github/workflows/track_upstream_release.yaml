@@ -1,6 +1,7 @@
 name: Track upstream releases
 
 on:
+  workflow_dispatch:
   schedule:
     - cron: "30 */3 * * *"
 
