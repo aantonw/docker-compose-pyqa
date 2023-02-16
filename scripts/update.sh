@@ -64,16 +64,12 @@ fi
 
 # Otherwise, build and push a new image.
 echo "Building  ${DOCKER_REPO}:${DOCKER_IMAGE_TAG} ..."
-docker build \
+docker buildx build \
+    --platform linux/amd64,linux/arm64 \
     -t "${DOCKER_REPO}:${DOCKER_IMAGE_TAG}" \
     -t "${DOCKER_REPO}:latest" \
     --build-arg COMPOSE_BIN_URL="${COMPOSE_BIN_URL}" \
     --build-arg BLACK_VERSION="${BLACK_VERSION}" \
     --build-arg ISORT_VERSION="${ISORT_VERSION}" \
+    --push
     "."
-
-echo "Pushing version ${DOCKER_REPO}:${DOCKER_IMAGE_TAG} ..."
-docker push "${DOCKER_REPO}:${DOCKER_IMAGE_TAG}"
-
-echo "Pushing version ${DOCKER_REPO}:${DOCKER_IMAGE_TAG} as ${DOCKER_REPO}:latest ..."
-docker push "${DOCKER_REPO}:latest"

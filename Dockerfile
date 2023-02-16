@@ -1,3 +1,4 @@
+# syntax=docker/dockerfile:1
 FROM python:3-alpine
 ARG COMPOSE_BIN_URL BLACK_VERSION ISORT_VERSION
 RUN true \
