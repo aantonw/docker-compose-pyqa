@@ -71,5 +71,5 @@ docker buildx build \
     --build-arg COMPOSE_BIN_URL="${COMPOSE_BIN_URL}" \
     --build-arg BLACK_VERSION="${BLACK_VERSION}" \
     --build-arg ISORT_VERSION="${ISORT_VERSION}" \
-    --push
+    --push \
     "."
