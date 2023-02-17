@@ -56,8 +56,13 @@ if [ "${DOCKERHUB_TOKEN}" = "" ]; then
 fi
 
 # See if an image already exists. If so, we can exit early, no more work to do.
-DOCKER_IMAGE_DIGEST_CODE=$(curl -s -o /dev/null -w "%{http_code}" -H "Authorization: Bearer ${DOCKERHUB_TOKEN}" -H "Accept: application/vnd.docker.distribution.manifest.v2+json" "https://registry.hub.docker.com/v2/${DOCKER_REPO}/manifests/${DOCKER_IMAGE_TAG}")
-if [ "${DOCKER_IMAGE_DIGEST_CODE}" = "200" ]; then
+TAG_LIST=$(curl -s -H "Authorization: Bearer ${DOCKERHUB_TOKEN}" -H "Accept: application/vnd.docker.distribution.manifest.v2+json" "https://registry.hub.docker.com/v2/${DOCKER_REPO}/tags/list")
+set +e
+echo $TAG_LIST | grep -q $DOCKER_IMAGE_TAG
+TAG_EXISTS=$?
+set -e
+
+if [ $TAG_EXISTS -eq 0 ]; then
     echo "Image ${DOCKER_REPO}:${DOCKER_IMAGE_TAG} already exists, skipping."
     exit 0
 fi
